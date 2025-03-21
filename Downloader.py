@@ -2,12 +2,12 @@ import os
 import re # For Cleaning Text
 import eyed3    # For Metadata
 import requests # For Image Loading
+import subprocess # For 320 kbit/s MP3 Downloading
 from PIL import Image   # For image cropping
 from tqdm import tqdm   # For Progress Bar
 from datetime import datetime   # For Time Stamps
 from pytubefix import YouTube   # For Downloading Youtube Video
-from colorama import init, Fore # For Text Colors
-from moviepy import AudioFileClip   # For MP3 Conversion
+from colorama import init, Fore, Style # For Text Colors
 
 init(convert=True, autoreset=True)
 
@@ -64,16 +64,13 @@ def download_audio(videoUrl, audioOutputFolder, imageOutputFolder):
 
 def convert_to_mp3(video_file, output_folder):
     try:
-        # Load the audio file
-        audio_clip = AudioFileClip(video_file)
-
         # Create the output MP3 file path
         base_name = os.path.splitext(os.path.basename(video_file))[0]
         mp3_file = os.path.join(output_folder, f"{base_name}.mp3")
 
-        # Write the audio to MP3
-        audio_clip.write_audiofile(mp3_file)
-        audio_clip.close()
+        # Use ffmpeg to convert the audio file to MP3 with 320 kbps bitrate
+        command = ['ffmpeg', '-i', video_file, '-b:a', '320k', mp3_file]
+        subprocess.run(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
 
         # Delete the original video file
         os.remove(video_file)
@@ -211,7 +208,7 @@ def main():
             print(get_time() + Fore.CYAN + "Download started for: " + url)
             download_audio(url, audioOutputFolder, imageOutputFolder)
             print(get_time() + Fore.YELLOW + "Moving To Next: \n ")
-    print(get_time() + "Everything Downloaded")
+    print(get_time() + Fore.CYAN + "Everything Downloaded")
     input("Press Enter to exit...")
 
 if __name__ == "__main__":
