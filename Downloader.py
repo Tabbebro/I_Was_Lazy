@@ -2,6 +2,10 @@ import os
 import re
 import requests
 from pytubefix import YouTube
+from colorama import init, Back, Fore, Style
+
+init(convert=True)
+
 
 def download_audio(videoUrl, outputFolder):
     try:
@@ -20,9 +24,10 @@ def download_audio(videoUrl, outputFolder):
         os.rename(outFile, new_file)
 
         #Show If Success
-        print(yt.title + " has been successfully downloaded.")
+        print(Fore.GREEN +"Mp3 Successfully Downloaded: " + Style.RESET_ALL + yt.title)
     except Exception as e:
-        print(f"Error downloading {videoUrl}: {e}")
+        print(Fore.RED + "Error downloading audio: " + Style.RESET_ALL + videoUrl + " : " + e)
+
 
 def download_thumbnail(videoUrl, outputFolder):
     try:
@@ -33,7 +38,7 @@ def download_thumbnail(videoUrl, outputFolder):
         url = f"https://img.youtube.com/vi/{id}/maxresdefault.jpg"
 
         # Clean The Title From Unwanted Symbols
-        cleanTitle = re.sub(r'[^a-zA-Z0-9\s]', '', yt.title)
+        cleanTitle = re.sub('[#%&\/<>*?$!\'\":@+=|]', '', yt.title)
 
         # Get Save Location
         savePath = f"{outputFolder}\\{cleanTitle}.png"
@@ -47,12 +52,12 @@ def download_thumbnail(videoUrl, outputFolder):
             with open(savePath, 'wb') as file:
                 for chunk in response.iter_content(1024):
                     file.write(chunk)
-            print(f"Image successfully downloaded and saved as {savePath}")
+            print(Fore.GREEN + "Image Successfully Downloaded: " + Style.RESET_ALL + yt.title)
         else:
-            print(f"Failed to download image. Status code: {response.status_code}")
+            print(Fore.RED + "Failed to download image. Status code: " + Style.RESET_ALL + response.status_code)
     except Exception as e:
-        print(f"An error occurred: {e}")
-
+        print(Fore.RED + "Error downloading image: " + Style.RESET_ALL + videoUrl + " : " + e)
+    
 def main():
     # File containing YouTube URLs
     inputFile = "links.txt"  
@@ -61,9 +66,11 @@ def main():
     scriptDir = os.path.dirname(os.path.abspath(__file__))  
     
     # Set output folder for mp3
-    outputFolder = os.path.join(scriptDir, "downloads")  
+    audioOutputFolder = os.path.join(scriptDir, "downloads/audio")
+    imageOutputFolder = os.path.join(scriptDir, "downloads/image")  
     
-    os.makedirs(outputFolder, exist_ok=True)
+    os.makedirs(audioOutputFolder, exist_ok=True)
+    os.makedirs(imageOutputFolder, exist_ok=True)
     
     with open(inputFile, "r") as file:
         urls = file.readlines()
@@ -71,9 +78,11 @@ def main():
     for url in urls:
         url = url.strip()
         if url:
-            download_audio(url, outputFolder)
-            download_thumbnail(url, outputFolder)
-    
+            print("Download started for: " + url)
+            #download_audio(url, audioOutputFolder)
+            download_thumbnail(url, imageOutputFolder)
+            print(Fore.YELLOW + "Moving To Next: \n " + Style.RESET_ALL)
+    print("Everything Downloaded")
     #input("Press Enter to exit...")
 
 if __name__ == "__main__":
