@@ -201,7 +201,7 @@ def main():
     with open(inputFile, "r") as file:
         urls = file.readlines()
     
-    input(Fore.YELLOW + "Press Enter to start")
+    input(Fore.YELLOW + "Press Enter to start" + Style.RESET_ALL)
     for url in urls:
         url = url.strip()
         if url:
