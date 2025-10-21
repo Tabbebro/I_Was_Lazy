@@ -69,7 +69,7 @@ def convert_to_mp3(video_file, output_folder):
         mp3_file = os.path.join(output_folder, f"{base_name}.mp3")
 
         # Use ffmpeg to convert the audio file to MP3 with 320 kbps bitrate
-        command = ['ffmpeg', '-i', video_file, '-b:a', '320k', mp3_file]
+        command = ['ffmpeg','-y', '-i', video_file, '-codec:a', 'libmp3lame', '-b:a', '320k', '-ar', '44100', mp3_file]
         subprocess.run(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
 
         # Delete the original video file
